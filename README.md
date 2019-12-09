@@ -2,6 +2,12 @@
 
 📡 🛰 Refract wallet system, implementation and interfaces for smart wallet and smart wallet factories
 
+## Status
+
+| Service | Status |
+| :---: | :---: |
+| Coveralls | [![Coverage Status](https://coveralls.io/repos/github/ticket721/refract/badge.svg?branch=develop)](https://coveralls.io/github/ticket721/refract?branch=develop) |
+
 ## Abstract
 
 The Refract Wallet is a `smart wallet` interface built with both relayers and dapp users in mind. The `factory` is an important part of the wallet as it allows relayers to also deploy `smart wallets` on their end. The goal is to provide two interfaces that can be used by relayers to properly understand the `smart wallets` and how to deploy them too !
@@ -27,7 +33,6 @@ Relayers are entities that hold `ether` and are able to spend it in order to rel
 ### RefractFactory
 
 - **create2 deployment**: ability to predict generated address by including salt and initial owner in the `create2` process. Lowers cost per user.
-- **deploy and relay**: ability to deploy contract upon transaction. Useful if you use the `create2` feature: predict the address of the user and use it before even deploying the `smart wallet`, deploy the `smart wallet` only when user makes first transaction.
 
 ### RefractWallet
 
@@ -36,3 +41,27 @@ Relayers are entities that hold `ether` and are able to spend it in order to rel
 - **accept gas requirements**: `meta-transactions` can contain gas requirements for the relayer. The `smart wallet` should check the current `gasLimit` and `gasPrice` and revert if requirements are not met.
 - **emit reward**: `meta-transactions` can contain a reward currency and amount.
 - **eip712 signatures**: all `meta-transactions` should be `eip712` compliant.
+
+## Versions
+
+Each version is defined by its interfaces, implementations, and additional mocks used for testing.
+
+### `v0`
+
+- [x] create2 address prediction
+- [x] create2 deployment from factory
+- [x] meta transaction
+- [x] meta transaction with reward
+- [x] meta transaction with gas
+- [x] meta transaction with reward + gas
+- [x] EIP712 signatures
+- [x] send meta transactions towards wallets
+- [x] send meta transactions towards contracts
+- [ ] proxy wallets
+- [ ] proxy factory
+
+| Interfaces | Implementation | Mocks |
+| :---:      | :---:          | :---: |
+| [`IRefractFactory_v0`](./contracts/interfaces/v0/IRefractFactory_v0.sol) |  [`RefractFactory_v0`](./contracts/implementations/v0/RefractFactory_v0.sol) | [`ERC20Mock_v0`](./contracts/mocks/v0/ERC20Mock_v0.sol)|
+| [`IRefractWallet_v0`](./contracts/interfaces/v0/IRefractWallet_v0.sol) |  [`RefractWallet_v0`](./contracts/implementations/v0/RefractWallet_v0.sol) | |
+

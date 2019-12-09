@@ -1,34 +1,35 @@
+const { FACTORY_NAME, WALLET_NAME } = require('../test_cases/constants');
+
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const { revert, snapshot } = require('../test_cases/utils');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-const { placeholder } = require('../test_cases/placeholder');
+const { versions } = require('../test_cases/versions');
+const { use_erc20 } = require('../test_cases/use_erc20');
 
 contract('Refract', (accounts) => {
 
     before(async function () {
-        //const ERC20MockArtifact = artifacts.require('ERC20Mock_v0');
-        //const ERC2280MockArtifact = artifacts.require('ERC2280Mock_v0');
-        //const ERC721MockArtifact = artifacts.require('ERC721Mock_v0');
+        const RefractFactoryArtifact = artifacts.require(FACTORY_NAME);
+        const RefractWalletArtifact = artifacts.require(WALLET_NAME);
+        const RefractFactoryInstance = await RefractFactoryArtifact.deployed();
+        const ERC20MockArtifact = artifacts.require('ERC20Mock_v0');
         //const MetaMarketplaceArtifact = artifacts.require(CONTRACT_NAME);
 
-        //const ERC20Instance = await ERC20MockArtifact.deployed();
-        //const ERC2280Instance = await ERC2280MockArtifact.deployed();
-        //const ERC721Instance = await ERC721MockArtifact.deployed();
+        const ERC20Instance = await ERC20MockArtifact.deployed();
         //const MetaMarketplaceInstance = await MetaMarketplaceArtifact.new(CHAIN_ID, ERC20Instance.address, ERC2280Instance.address, ERC721Instance.address);
 
         //await ERC721Instance.createScope(SCOPE_NAME, '0x0000000000000000000000000000000000000000', [MetaMarketplaceInstance.address], []);
         //const scope = await ERC721Instance.getScope(SCOPE_NAME);
         //setScopeIndex(scope.scope_index.toNumber());
 
-        //this.contracts = {
-        //    [CONTRACT_NAME]: MetaMarketplaceInstance,
-        //    ERC20: ERC20Instance,
-        //    ERC2280: ERC2280Instance,
-        //    ERC721: ERC721Instance
-        //};
+        this.contracts = {
+            [FACTORY_NAME]: RefractFactoryInstance,
+            [WALLET_NAME]: RefractWalletArtifact,
+            ERC20: ERC20Instance,
+        };
 
         this.snap_id = await snapshot();
         this.accounts = accounts;
@@ -41,9 +42,10 @@ contract('Refract', (accounts) => {
         this.snap_id = await snapshot();
     });
 
-    describe('placeholder', function () {
+    describe('usage', function () {
 
-        it('placeholder', placeholder);
+        it('versions', versions);
+        it('use erc20', use_erc20);
 
     });
 

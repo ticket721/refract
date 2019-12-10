@@ -11,7 +11,10 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
     bytes4 constant public REFRACTWALLET_V0_SIGNATURE = // 0x25961920
     bytes4(keccak256('version()')) ^
     bytes4(keccak256('isController(address)')) ^
-    bytes4(keccak256('MTX(address[],uint256[],bytes)'));
+    bytes4(keccak256('mtx(address[],uint256[],bytes)')) ^
+    bytes4(keccak256('mtxr(address[],uint256[],bytes)')) ^
+    bytes4(keccak256('mtxg(address[],uint256[],bytes)')) ^
+    bytes4(keccak256('mtxgr(address[],uint256[],bytes)'));
 
     //
     // bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7

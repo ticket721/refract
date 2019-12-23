@@ -1,5 +1,5 @@
 {
-    "name": "@ticket721/refract",
+    "name": "@ticket721contracts/refract",
     "private": true,
     "version": "1.0.0",
     "description": "Refract wallet system, implementation and interfaces for smart wallet and smart wallet factories",
@@ -8,8 +8,8 @@
     },
     "dependencies": {
         "@openzeppelin/contracts": "2.3.0",
-        "erc2280": "^1.2.0",
-        "truffle": "^5.0.35"
+        "erc2280": "1.3.0",
+        "truffle": "5.1.5"
     },
     "devDependencies": {
         "@commitlint/cli": "^7.5.2",

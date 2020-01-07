@@ -2,6 +2,7 @@ pragma solidity 0.5.15;
 
 import "../../interfaces/v0/IRefractFactory_v0.sol";
 import "@openzeppelin/contracts/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./RefractWallet_v0.sol";
 
 contract RefractFactory_v0 is IRefractFactory_v0 {
@@ -24,6 +25,14 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
     //
     function supportsInterface(bytes4 interface_signature) external pure returns (bool) {
         return ((interface_signature == ERC165_SIGNATURE) || (interface_signature == REFRACTFACTORY_V0_SIGNATURE));
+    }
+
+    function isContract(address _addr) private view returns (bool) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
     }
 
     function _getSalt(uint256 _salt, address _sender) internal pure returns (bytes32) {
@@ -69,6 +78,60 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
 
     function deploy(address owner, uint256 salt) external returns (address) {
         return address(_createWallet(salt, owner));
+    }
+
+    function _forwardReward(uint256 amount, address currency) internal {
+        if (currency == address(0)) {
+            msg.sender.transfer(amount);
+        } else {
+            IERC20(currency).transfer(msg.sender, amount);
+        }
+    }
+
+    function mtxAndDeploy(
+        address owner,
+        uint256 salt,
+        address[] calldata addr,
+        uint256[] calldata nums,
+        bytes calldata bdata
+    ) external {
+        RefractWallet_v0 deployed = _createWallet(salt, owner);
+        deployed.mtx(addr, nums, bdata);
+    }
+
+    function mtxgAndDeploy(
+        address owner,
+        uint256 salt,
+        address[] calldata addr,
+        uint256[] calldata nums,
+        bytes calldata bdata
+    ) external {
+        RefractWallet_v0 deployed = _createWallet(salt, owner);
+        deployed.mtxg(addr, nums, bdata);
+    }
+
+    function mtxrAndDeploy(
+        address owner,
+        uint256 salt,
+        address[] calldata addr,
+        uint256[] calldata nums,
+        bytes calldata bdata
+    ) external {
+        RefractWallet_v0 deployed = _createWallet(salt, owner);
+        deployed.mtxr(addr, nums, bdata);
+        _forwardReward(nums[2], addr[2]);
+    }
+
+    function mtxgrAndDeploy(
+        address owner,
+        uint256 salt,
+        address[] calldata addr,
+        uint256[] calldata nums,
+        bytes calldata bdata
+    ) external {
+        RefractWallet_v0 deployed = _createWallet(salt, owner);
+        deployed.mtxgr(addr, nums, bdata);
+        _forwardReward(nums[4], addr[2]);
     }
 
 }

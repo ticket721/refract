@@ -8,6 +8,7 @@ const expect = chai.expect;
 
 const { versions } = require('../test_cases/versions');
 const { use_erc20 } = require('../test_cases/use_erc20');
+const { use_erc20_and_deploy } = require('../test_cases/use_erc20_and_deploy');
 
 contract('Refract', (accounts) => {
 
@@ -46,6 +47,7 @@ contract('Refract', (accounts) => {
 
         it('versions', versions);
         it('use erc20', use_erc20);
+        it('use erc20 and deploy', use_erc20_and_deploy)
 
     });
 

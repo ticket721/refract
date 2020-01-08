@@ -82,7 +82,7 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
 
     function _forwardReward(uint256 amount, address currency) internal {
         if (currency == address(0)) {
-            msg.sender.transfer(amount);
+            //msg.sender.transfer(amount);
         } else {
             IERC20(currency).transfer(msg.sender, amount);
         }
@@ -133,5 +133,7 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
         deployed.mtxgr(addr, nums, bdata);
         _forwardReward(nums[4], addr[2]);
     }
+
+    function() external payable {}
 
 }

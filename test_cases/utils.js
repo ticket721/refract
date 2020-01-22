@@ -85,10 +85,6 @@ const TransactionParameters = [
     {
         name: 'data',
         type: 'bytes'
-    },
-    {
-        name: 'nonce',
-        type: 'uint256'
     }
 ];
 
@@ -117,7 +113,11 @@ const GasParameters = [
 const MetaTransaction = [
     {
         name: 'parameters',
-        type: 'TransactionParameters'
+        type: 'TransactionParameters[]'
+    },
+    {
+        name: 'nonce',
+        type: 'uint256'
     }
 ];
 
@@ -165,100 +165,53 @@ class RefractContract {
         this.contract = contract;
     }
 
-    async metaCall(method, args, wallet, value, nonce, relayer) {
+    async metaCall(nonce, wallet, txdata) {
 
-        const data = this.contract.methods[method](...args).encodeABI();
-        const sig = await this.signer.signMetaTransaction({
-            from: wallet.address,
-            to: this.contract._address,
-            data,
+        const payload = {
             nonce,
-            value,
-            relayer
-        }, wallet.privateKey);
+            parameters: []
+        };
 
-        return [
-            [this.contract._address, relayer],
-            [nonce, value],
-            `${sig.hex}${data.slice(2)}`
-        ]
+        for (const tx of txdata) {
+            const {method, from, args, value, relayer} = tx;
 
-    }
+            const data = this.contract.methods[method](...args).encodeABI();
 
-    async metaCallWithReward(method, args, wallet, value, nonce, relayer, currency, reward) {
-
-        const data = this.contract.methods[method](...args).encodeABI();
-        const sig = await this.signer.signMetaTransactionWithReward({
-                from: wallet.address,
+            payload.parameters.push({
+                from,
                 to: this.contract._address,
                 data,
-                nonce,
                 value,
                 relayer
-            }, {
-                currency,
-                value: reward
-            },
-            wallet.privateKey);
+            });
+
+        }
+
+        const sig = await this.signer.signMetaTransaction(payload, wallet.privateKey);
+
+        const nums = [];
+        const addrs = [];
+        let bdata = `${sig.hex}`;
+
+        for (const tx of payload.parameters) {
+            nums.push(tx.value);
+            nums.push((tx.data.length - 2) / 2);
+
+            addrs.push(tx.to);
+            addrs.push(tx.relayer);
+
+            bdata = `${bdata}${tx.data.slice(2)}`;
+        }
 
         return [
-            [this.contract._address, relayer, currency],
-            [nonce, value, reward],
-            `${sig.hex}${data.slice(2)}`
+            nonce,
+            addrs,
+            nums,
+            bdata
         ]
 
     }
 
-    async metaCallWithGas(method, args, wallet, value, nonce, relayer, gasPrice, gasLimit) {
-
-        const data = this.contract.methods[method](...args).encodeABI();
-        const sig = await this.signer.signMetaTransactionWithGas({
-                from: wallet.address,
-                to: this.contract._address,
-                data,
-                nonce,
-                value,
-                relayer
-            }, {
-                gasLimit,
-                gasPrice
-            },
-            wallet.privateKey);
-
-        return [
-            [this.contract._address, relayer],
-            [nonce, value, gasLimit, gasPrice],
-            `${sig.hex}${data.slice(2)}`
-        ]
-
-    }
-
-    async metaCallWithGasAndReward(method, args, wallet, value, nonce, relayer, gasPrice, gasLimit, currency, reward) {
-
-        const data = this.contract.methods[method](...args).encodeABI();
-        const sig = await this.signer.signMetaTransactionWithGasAndReward({
-                from: wallet.address,
-                to: this.contract._address,
-                data,
-                nonce,
-                value,
-                relayer
-            }, {
-                gasLimit,
-                gasPrice
-            },{
-                currency,
-                value: reward
-            },
-            wallet.privateKey);
-
-        return [
-            [this.contract._address, relayer, currency],
-            [nonce, value, gasLimit, gasPrice, reward],
-            `${sig.hex}${data.slice(2)}`
-        ]
-
-    }
 }
 
 class RefractSigner extends EIP712Signer {
@@ -286,8 +239,7 @@ class RefractSigner extends EIP712Signer {
     }
 
     signMetaTransaction(args, privateKey) {
-        args.from = this.wallet_address;
-        const payload = this.generatePayload({parameters: args}, 'MetaTransaction');
+        const payload = this.generatePayload(args, 'MetaTransaction');
         return this.sign(privateKey, payload, true);
     }
 

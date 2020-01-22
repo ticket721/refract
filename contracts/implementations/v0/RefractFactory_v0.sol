@@ -82,7 +82,7 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
 
     function _forwardReward(uint256 amount, address currency) internal {
         if (currency == address(0)) {
-            //msg.sender.transfer(amount);
+            msg.sender.transfer(amount);
         } else {
             IERC20(currency).transfer(msg.sender, amount);
         }
@@ -96,42 +96,7 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
         bytes calldata bdata
     ) external {
         RefractWallet_v0 deployed = _createWallet(salt, owner);
-        deployed.mtx(addr, nums, bdata);
-    }
-
-    function mtxgAndDeploy(
-        address owner,
-        uint256 salt,
-        address[] calldata addr,
-        uint256[] calldata nums,
-        bytes calldata bdata
-    ) external {
-        RefractWallet_v0 deployed = _createWallet(salt, owner);
-        deployed.mtxg(addr, nums, bdata);
-    }
-
-    function mtxrAndDeploy(
-        address owner,
-        uint256 salt,
-        address[] calldata addr,
-        uint256[] calldata nums,
-        bytes calldata bdata
-    ) external {
-        RefractWallet_v0 deployed = _createWallet(salt, owner);
-        deployed.mtxr(addr, nums, bdata);
-        _forwardReward(nums[2], addr[2]);
-    }
-
-    function mtxgrAndDeploy(
-        address owner,
-        uint256 salt,
-        address[] calldata addr,
-        uint256[] calldata nums,
-        bytes calldata bdata
-    ) external {
-        RefractWallet_v0 deployed = _createWallet(salt, owner);
-        deployed.mtxgr(addr, nums, bdata);
-        _forwardReward(nums[4], addr[2]);
+        deployed.mtx(0, addr, nums, bdata);
     }
 
     function() external payable {}

@@ -57,13 +57,16 @@ interface IRefractWallet_v0 {
     );
 
     //
-    // @notice Method to execute a simple meta transaction (mtx)
+    // @notice Method to execute one or more simple meta transaction (mtx)
+    //
+    // @param nonce Nonce of current tx(s)
     //
     // @param addr Array containing address arguments for the meta transaction
     //
     //             ```
     //             | to      | > Transaction target address
     //             | relayer | > Meta Transaction relayer address
+    //              * number of txs
     //             ```
     //
     // @notice to is not required as it is implicitely set to the address of the contract.
@@ -72,100 +75,100 @@ interface IRefractWallet_v0 {
     // @param nums Array containing uint256 arguments for the meta transaction
     //
     //             ```
-    //             | nonce   | > Nonce of the meta transaction
     //             | value   | > Amount of eth to use in the transaction
+    //              * number of txs
     //             ```
     //
     // @param bdata Contains the signature of a controller, respecting the ERC712 standard, signing an mtx
     //                  data structure type, followed by transaction data.
     //
-    function mtx(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
+    function mtx(uint256 nonce, address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
 
 
-    //
-    // @notice Method to execute a meta transaction with gas requirements
-    //
-    // @param addr Array containing address arguments for the meta transaction
-    //
-    //             ```
-    //             | to      | > Transaction target address
-    //             | relayer | > Meta Transaction relayer address
-    //             ```
-    //
-    // @notice to is not required as it is implicitely set to the address of the contract.
-    // @notice relayer can be set to address(0) to remove any relayer verification.
-    //
-    // @param nums Array containing uint256 arguments for the meta transaction
-    //
-    //             ```
-    //             | nonce    | > Nonce of the meta transaction
-    //             | value    | > Amount of eth to use in the transaction
-    //             | gasLimit | > Minimum amount of gas to use for the meta transaction
-    //             | gasPrice | > Minimum gas price to use for the meta transaction
-    //             ```
-    //
-    // @param bdata Contains the signature of a controller, respecting the ERC712 standard, signing an mtx
-    //                  data structure type, followed by transaction data.
-    //
-    function mtxg(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
+    // //
+    // // @notice Method to execute a meta transaction with gas requirements
+    // //
+    // // @param addr Array containing address arguments for the meta transaction
+    // //
+    // //             ```
+    // //             | to      | > Transaction target address
+    // //             | relayer | > Meta Transaction relayer address
+    // //             ```
+    // //
+    // // @notice to is not required as it is implicitely set to the address of the contract.
+    // // @notice relayer can be set to address(0) to remove any relayer verification.
+    // //
+    // // @param nums Array containing uint256 arguments for the meta transaction
+    // //
+    // //             ```
+    // //             | nonce    | > Nonce of the meta transaction
+    // //             | value    | > Amount of eth to use in the transaction
+    // //             | gasLimit | > Minimum amount of gas to use for the meta transaction
+    // //             | gasPrice | > Minimum gas price to use for the meta transaction
+    // //             ```
+    // //
+    // // @param bdata Contains the signature of a controller, respecting the ERC712 standard, signing an mtx
+    // //                  data structure type, followed by transaction data.
+    // //
+    // function mtxg(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
 
-    //
-    // @notice Method to execute a meta transaction with reward
-    //
-    // @param addr Array containing address arguments for the meta transaction
-    //
-    //             ```
-    //             | to          | > Transaction target address
-    //             | relayer     | > Meta Transaction relayer address
-    //             | rewardToken | > Address of the currency to use as a reward
-    //             ```
-    //
-    // @notice to is not required as it is implicitely set to the address of the contract.
-    // @notice relayer can be set to address(0) to remove any relayer verification.
-    // @notice rewardToken can be set to address(0) to give a reward in $ETH
-    //
-    // @param nums Array containing uint256 arguments for the meta transaction
-    //
-    //             ```
-    //             | nonce       | > Nonce of the meta transaction
-    //             | value       | > Amount of eth to use in the transaction
-    //             | rewardValue | > Amount of token to reward the relayer
-    //             ```
-    //
-    // @param bdata Contains the signature of a controller, respecting the ERC712 standard, signing an mtx
-    //                  data structure type, followed by transaction data.
-    //
-    function mtxr(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
+    // //
+    // // @notice Method to execute a meta transaction with reward
+    // //
+    // // @param addr Array containing address arguments for the meta transaction
+    // //
+    // //             ```
+    // //             | to          | > Transaction target address
+    // //             | relayer     | > Meta Transaction relayer address
+    // //             | rewardToken | > Address of the currency to use as a reward
+    // //             ```
+    // //
+    // // @notice to is not required as it is implicitely set to the address of the contract.
+    // // @notice relayer can be set to address(0) to remove any relayer verification.
+    // // @notice rewardToken can be set to address(0) to give a reward in $ETH
+    // //
+    // // @param nums Array containing uint256 arguments for the meta transaction
+    // //
+    // //             ```
+    // //             | nonce       | > Nonce of the meta transaction
+    // //             | value       | > Amount of eth to use in the transaction
+    // //             | rewardValue | > Amount of token to reward the relayer
+    // //             ```
+    // //
+    // // @param bdata Contains the signature of a controller, respecting the ERC712 standard, signing an mtx
+    // //                  data structure type, followed by transaction data.
+    // //
+    // function mtxr(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
 
-    //
-    // @notice Method to execute a meta transaction with reward & gas requirements
-    //
-    // @param addr Array containing address arguments for the meta transaction
-    //
-    //             ```
-    //             | to          | > Transaction target address
-    //             | relayer     | > Meta Transaction relayer address
-    //             | rewardToken | > Address of the currency to use as a reward
-    //             ```
-    //
-    // @notice to is not required as it is implicitely set to the address of the contract.
-    // @notice relayer can be set to address(0) to remove any relayer verification.
-    // @notice rewardToken can be set to address(0) to give a reward in $ETH
-    //
-    // @param nums Array containing uint256 arguments for the meta transaction
-    //
-    //             ```
-    //             | nonce       | > Nonce of the meta transaction
-    //             | value       | > Amount of eth to use in the transaction
-    //             | gasLimit    | > Minimum amount of gas to use for the meta transaction
-    //             | gasPrice    | > Minimum gas price to use for the meta transaction
-    //             | rewardValue | > Amount of token to reward the relayer
-    //             ```
-    //
-    // @param bdata Contains the signature of a controller, respecting the ERC712 standard, signing an mtx
-    //                  data structure type, followed by transaction data.
-    //
-    function mtxgr(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
+    // //
+    // // @notice Method to execute a meta transaction with reward & gas requirements
+    // //
+    // // @param addr Array containing address arguments for the meta transaction
+    // //
+    // //             ```
+    // //             | to          | > Transaction target address
+    // //             | relayer     | > Meta Transaction relayer address
+    // //             | rewardToken | > Address of the currency to use as a reward
+    // //             ```
+    // //
+    // // @notice to is not required as it is implicitely set to the address of the contract.
+    // // @notice relayer can be set to address(0) to remove any relayer verification.
+    // // @notice rewardToken can be set to address(0) to give a reward in $ETH
+    // //
+    // // @param nums Array containing uint256 arguments for the meta transaction
+    // //
+    // //             ```
+    // //             | nonce       | > Nonce of the meta transaction
+    // //             | value       | > Amount of eth to use in the transaction
+    // //             | gasLimit    | > Minimum amount of gas to use for the meta transaction
+    // //             | gasPrice    | > Minimum gas price to use for the meta transaction
+    // //             | rewardValue | > Amount of token to reward the relayer
+    // //             ```
+    // //
+    // // @param bdata Contains the signature of a controller, respecting the ERC712 standard, signing an mtx
+    // //                  data structure type, followed by transaction data.
+    // //
+    // function mtxgr(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external;
 
 
 }

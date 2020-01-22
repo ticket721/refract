@@ -94,183 +94,74 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
         }
     }
 
-    function mtx(address[] calldata addr, uint256[] calldata nums, bytes calldata bdata) external nonceCheck(nums[0]) {
+    function mtx(
+        uint256 nonce,
+        address[] calldata addr,
+        uint256[] calldata nums,
+        bytes calldata bdata
+    ) external nonceCheck(nums[0]) {
 
-        require(addr.length == 2, "RefractWallet::mtx | invalid addr argument length (should be 2)");
-        require(nums.length == 2, "RefractWallet::mtx | invalid nums argument length (should be 2)");
-        require(bdata.length >= 65, "RefractWallet::mtx | invalid bdata length (should be at least 65 bytes)");
+        require(addr.length % 2 == 0,
+            "RefractWallet::mtx | invalid addr argument length (should be 2n)");
+        require(nums.length % 2 == 0,
+            "RefractWallet::mtx | invalid nums argument length (should be 2n)");
+        require(bdata.length >= 65,
+            "RefractWallet::mtx | invalid bdata length (should be at least 65 bytes long)");
+        require(nums.length / 2 == addr.length / 2,
+            "RefractWallet::mtx | invalid number of packed txs (nums / 2 != addr / 2)");
 
-        bytes memory data = "";
+        uint256 txs_count = addr.length / 2;
+
         {
-            bytes memory sig = BytesUtil_v0.slice(bdata, 0, 65);
-            if (bdata.length > 65) {
-                data = BytesUtil_v0.slice(bdata, 65, bdata.length - 65);
-            }
-
-            TransactionParameters memory parameters = TransactionParameters({
-                from: address(this),
-                to: addr[0],
-                relayer: addr[1],
-                data: data,
-                nonce: nums[0],
-                value: nums[1]
-                });
-
             MetaTransaction memory mtx_payload = MetaTransaction({
-                parameters: parameters
+                nonce: nonce,
+                parameters: new TransactionParameters[](txs_count)
                 });
+
+            bytes memory sig = BytesUtil_v0.slice(bdata, 0, 65);
+            uint256 bdata_idx = 65;
+
+            for (uint256 idx = 0; idx < txs_count; ++idx) {
+
+                bytes memory data = "";
+                require(bdata.length >= bdata_idx + nums[(idx * 2) + 1], "RefractWallet::mtx | tx data size too small");
+                data = BytesUtil_v0.slice(bdata, bdata_idx, nums[(idx * 2) + 1]);
+                bdata_idx += nums[(idx * 2) + 1];
+
+                mtx_payload.parameters[idx] = TransactionParameters({
+                    from: address(this),
+                    to: addr[(idx * 2)],
+                    relayer: addr[(idx * 2) + 1],
+                    data: data,
+                    value: nums[(idx * 2)]
+                    });
+
+            }
 
             address signer = verify(mtx_payload, sig);
             require(controllers[signer] == true, "RefractWallet::mtx | signer is not controller");
         }
 
-        _executeTx(addr[0], nums[1], data);
-        emit MTX_Refraction(addr[0], addr[1], nums[1], nums[0], data);
-
-    }
-
-    function mtxr(
-        address[] calldata addr,
-        uint256[] calldata nums,
-        bytes calldata bdata
-    ) external nonceCheck(nums[0]) {
-
-        require(addr.length == 3, "RefractWallet::mtxr | invalid addr argument length (should be 3)");
-        require(nums.length == 3, "RefractWallet::mtxr | invalid nums argument length (should be 3)");
-        require(bdata.length >= 65, "RefractWallet::mtxr | invalid bdata length (should be at least 65 bytes)");
-
-        bytes memory data = "";
         {
-            bytes memory sig = BytesUtil_v0.slice(bdata, 0, 65);
-            if (bdata.length > 65) {
-                data = BytesUtil_v0.slice(bdata, 65, bdata.length - 65);
+            uint256 bdata_idx = 65;
+            for (uint256 idx = 0; idx < txs_count; ++idx) {
+
+                bytes memory data = "";
+                data = BytesUtil_v0.slice(bdata, bdata_idx, nums[(idx * 2) + 1]);
+                _executeTx(addr[(idx * 2)], nums[(idx * 2)], data);
+                bdata_idx += nums[(idx * 2) + 1];
+
+                emit MTX_Refraction(
+                    addr[(idx * 2)],
+                    addr[(idx * 2) + 1],
+                    nums[(idx * 2)],
+                    nonce,
+                    data
+                );
+
             }
-
-            TransactionParameters memory parameters = TransactionParameters({
-                from: address(this),
-                to: addr[0],
-                relayer: addr[1],
-                data: data,
-                nonce: nums[0],
-                value: nums[1]
-                });
-
-            Reward memory reward = Reward({
-                currency: addr[2],
-                value: nums[2]
-                });
-
-            MetaTransactionWithReward memory mtxr_payload = MetaTransactionWithReward({
-                parameters: parameters,
-                reward: reward
-                });
-
-            address signer = verify(mtxr_payload, sig);
-            require(controllers[signer] == true, "RefractWallet::mtxr | signer is not controller");
         }
 
-        _recoverReward(addr[2], nums[2]);
-        require(_executeTx(addr[0], nums[1], data), "RefractWallet::mtxr | execution error");
-        emit MTXR_Refraction(addr[0], addr[1], nums[1], nums[0], data, addr[2], nums[2]);
-
-    }
-
-    function mtxg(
-        address[] calldata addr,
-        uint256[] calldata nums,
-        bytes calldata bdata
-    ) external nonceCheck(nums[0]) {
-
-        require(addr.length == 2, "RefractWallet::mtxg | invalid addr argument length (should be 2)");
-        require(nums.length == 4, "RefractWallet::mtxg | invalid nums argument length (should be 4)");
-        require(bdata.length >= 65, "RefractWallet::mtxg | invalid bdata length (should be at least 65 bytes)");
-
-        bytes memory data = "";
-        {
-            bytes memory sig = BytesUtil_v0.slice(bdata, 0, 65);
-            if (bdata.length > 65) {
-                data = BytesUtil_v0.slice(bdata, 65, bdata.length - 65);
-            }
-
-            TransactionParameters memory parameters = TransactionParameters({
-                from: address(this),
-                to: addr[0],
-                relayer: addr[1],
-                data: data,
-                nonce: nums[0],
-                value: nums[1]
-                });
-
-            GasParameters memory gas = GasParameters({
-                gasLimit: nums[2],
-                gasPrice: nums[3]
-                });
-
-            MetaTransactionWithGas memory mtxg_payload = MetaTransactionWithGas({
-                parameters: parameters,
-                gas: gas
-                });
-
-            address signer = verify(mtxg_payload, sig);
-            require(controllers[signer] == true, "RefractWallet::mtxg | signer is not controller");
-        }
-
-        require(tx.gasprice >= nums[3], "RefractWallet::mtxg | gasPrice too low");
-        require(_executeTxWithGas(addr[0], nums[1], data, nums[2]), "RefractWallet::mtxg | execution error");
-        emit MTXG_Refraction(addr[0], addr[1], nums[1], nums[0], data, nums[2], nums[3]);
-
-    }
-
-    function mtxgr(
-        address[] calldata addr,
-        uint256[] calldata nums,
-        bytes calldata bdata
-    ) external nonceCheck(nums[0]) {
-
-        require(addr.length == 3, "RefractWallet::mtxgr | invalid addr argument length (should be 3)");
-        require(nums.length == 5, "RefractWallet::mtxgr | invalid nums argument length (should be 5)");
-        require(bdata.length >= 65, "RefractWallet::mtxgr | invalid bdata length (should be at least 65 bytes)");
-
-        bytes memory data = "";
-        {
-            bytes memory sig = BytesUtil_v0.slice(bdata, 0, 65);
-            if (bdata.length > 65) {
-                data = BytesUtil_v0.slice(bdata, 65, bdata.length - 65);
-            }
-
-            TransactionParameters memory parameters = TransactionParameters({
-                from: address(this),
-                to: addr[0],
-                relayer: addr[1],
-                data: data,
-                nonce: nums[0],
-                value: nums[1]
-                });
-
-            GasParameters memory gas = GasParameters({
-                gasLimit: nums[2],
-                gasPrice: nums[3]
-                });
-
-            Reward memory reward = Reward({
-                currency: addr[2],
-                value: nums[4]
-                });
-
-            MetaTransactionWithGasAndReward memory mtxgr_payload = MetaTransactionWithGasAndReward({
-                parameters: parameters,
-                gas: gas,
-                reward: reward
-                });
-
-            address signer = verify(mtxgr_payload, sig);
-            require(controllers[signer] == true, "RefractWallet::mtxgr | signer is not controller");
-        }
-
-        require(tx.gasprice >= nums[3], "RefractWallet::mtxgr | gasPrice too low");
-        _recoverReward(addr[2], nums[4]);
-        require(_executeTxWithGas(addr[0], nums[1], data, nums[2]), "RefractWallet::mtxgr | execution error");
-        emit MTXGR_Refraction(addr[0], addr[1], nums[1], nums[0], data, nums[2], nums[3], addr[2], nums[4]);
 
     }
 

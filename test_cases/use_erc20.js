@@ -28,8 +28,9 @@ module.exports = {
         await expect((await refract.version()).toNumber()).to.equal(0);
 
         await ERC20.mint(prediction, 100);
+        const net_id = await web3.eth.net.getId();
 
-        const rsigner = new RefractSigner(1, prediction);
+        const rsigner = new RefractSigner(net_id, prediction);
         const wrappedERC20 = rsigner.wrapContract(ERC20.contract);
         let [nonce, addr, nums, bdata] = await wrappedERC20.metaCall(0, controller, [{
             from: prediction,

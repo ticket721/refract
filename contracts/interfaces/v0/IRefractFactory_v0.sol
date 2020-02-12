@@ -33,6 +33,8 @@ interface IRefractFactory_v0 {
     //
     // @param salt Bytes extra argument or salt for the RefractWallet creation
     //
+    // @param nonce Nonce of the MetaTransaction
+    //
     // @param addr Array containing address arguments for the meta transaction
     //
     //             ```

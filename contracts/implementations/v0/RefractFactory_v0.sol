@@ -27,6 +27,12 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
         return ((interface_signature == ERC165_SIGNATURE) || (interface_signature == REFRACTFACTORY_V0_SIGNATURE));
     }
 
+    uint256 public chain_id;
+
+    constructor(uint256 _chain_id) public {
+        chain_id = _chain_id;
+    }
+
     function isContract(address _addr) private view returns (bool) {
         uint32 size;
         assembly {
@@ -53,7 +59,7 @@ contract RefractFactory_v0 is IRefractFactory_v0 {
 
         address[] memory controllers = new address[](1);
         controllers[0] = _sender;
-        RefractWallet_v0(addr).initialize_v0(controllers);
+        RefractWallet_v0(addr).initialize_v0(controllers, chain_id);
 
         return RefractWallet_v0(addr);
     }

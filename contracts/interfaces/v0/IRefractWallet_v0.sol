@@ -75,7 +75,8 @@ interface IRefractWallet_v0 {
     // @param nums Array containing uint256 arguments for the meta transaction
     //
     //             ```
-    //             | value   | > Amount of eth to use in the transaction
+    //             | value         | > Amount of eth to use in the transaction
+    //             | data_length   | > Size of the data payload
     //              * number of txs
     //             ```
     //

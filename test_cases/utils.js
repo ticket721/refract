@@ -240,6 +240,7 @@ class RefractSigner extends EIP712Signer {
 
     signMetaTransaction(args, privateKey) {
         const payload = this.generatePayload(args, 'MetaTransaction');
+
         return this.sign(privateKey, payload, true);
     }
 

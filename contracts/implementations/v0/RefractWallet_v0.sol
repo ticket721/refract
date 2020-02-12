@@ -32,6 +32,7 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
     }
 
     bool private v0_wallet_lock = false;
+    uint256 public nonce = 0;
 
     modifier v0_wallet_locker() {
         require(v0_wallet_lock == false, "RefractWallet_v0::v0_locker | initialization already happened");
@@ -40,7 +41,6 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
     }
 
     mapping (address => bool) public controllers;
-    uint256 nonce = 0;
 
     function version() external view returns (uint256 version_code) {
         return 0;
@@ -50,15 +50,15 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
         return controllers[controller];
     }
 
-    function initialize_v0(address[] memory _controllers) public v0_wallet_locker {
+    function initialize_v0(address[] memory _controllers, uint256 chain_id) public v0_wallet_locker {
         for (uint256 idx = 0; idx < _controllers.length; ++idx) {
             controllers[_controllers[idx]] = true;
         }
-        RefractDomain_v0.initialize_domain_v0("Refract Wallet", "0", 1);
+        RefractDomain_v0.initialize_domain_v0("Refract Wallet", "0", chain_id);
     }
 
     modifier nonceCheck(uint256 _nonce) {
-        require(nonce == _nonce, "RefractWallet::nonceCheck | invalid nonce");
+        require(_nonce == nonce, "RefractWallet::nonceCheck | invalid nonce");
         ++nonce;
         _;
     }

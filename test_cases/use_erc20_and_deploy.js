@@ -20,8 +20,9 @@ module.exports = {
 
             const prediction = await RefractFactory_v0.predict(controller.address, salt);
             await web3.eth.sendTransaction({from: accounts[0], to: prediction, value: web3.utils.toWei('10', 'ether')});
+            const net_id = await web3.eth.net.getId();
 
-            const rsigner = new RefractSigner(1, prediction);
+            const rsigner = new RefractSigner(net_id, prediction);
             const wrappedERC20 = rsigner.wrapContract(ERC20.contract);
             let [nonce, addr, nums, bdata] = await wrappedERC20.metaCall(0, controller, [{
                 from: prediction,

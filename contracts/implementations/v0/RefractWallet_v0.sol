@@ -59,17 +59,22 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
 
     modifier nonceCheck(uint256 _nonce) {
         require(_nonce == nonce, "RefractWallet::nonceCheck | invalid nonce");
-        ++nonce;
+        nonce += 1;
         _;
     }
 
-    function _executeTx(address to, uint256 value, bytes memory data) internal returns (bool) {
-        bool result;
+    function _executeTx(address to, uint256 value, bytes memory data) internal {
         assembly {
-            let x := mload(0x40)
-            result := call(gas, to, value, add(data, 0x20), mload(data), x, 0)
+            let message := mload(0x40)
+
+            let result := call(gas, to, value, add(data, 0x20), mload(data), 0, 0)
+
+            let size := returndatasize
+
+            returndatacopy(message, 0, size)
+
+            if eq(result, 0) { revert(message, size) }
         }
-        return result;
     }
 
     function _executeTxWithGas(
@@ -77,13 +82,18 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
         uint256 value,
         bytes memory data,
         uint256 custom_gas
-    ) internal returns (bool) {
-        bool result;
+    ) internal {
         assembly {
-            let x := mload(0x40)
-            result := call(custom_gas, to, value, add(data, 0x20), mload(data), x, 0)
+            let message := mload(0x40)
+
+            let result := call(custom_gas, to, value, add(data, 0x20), mload(data), 0, 0)
+
+            let size := returndatasize
+
+            returndatacopy(message, 0, size)
+
+            if eq(result, 0) { revert(message, size) }
         }
-        return result;
     }
 
     function _recoverReward(address currency, uint256 value) internal {
@@ -99,7 +109,7 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
         address[] calldata addr,
         uint256[] calldata nums,
         bytes calldata bdata
-    ) external nonceCheck(nums[0]) {
+    ) external nonceCheck(nonce) {
 
         require(addr.length % 2 == 0,
             "RefractWallet::mtx | invalid addr argument length (should be 2n)");

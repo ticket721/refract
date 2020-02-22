@@ -105,11 +105,11 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
     }
 
     function mtx(
-        uint256 nonce,
+        uint256 _nonce,
         address[] calldata addr,
         uint256[] calldata nums,
         bytes calldata bdata
-    ) external nonceCheck(nonce) {
+    ) external nonceCheck(_nonce) {
 
         require(addr.length % 2 == 0,
             "RefractWallet::mtx | invalid addr argument length (should be 2n)");
@@ -124,7 +124,7 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
 
         {
             MetaTransaction memory mtx_payload = MetaTransaction({
-                nonce: nonce,
+                nonce: _nonce,
                 parameters: new TransactionParameters[](txs_count)
                 });
 
@@ -165,7 +165,7 @@ contract RefractWallet_v0 is IRefractWallet_v0, RefractDomain_v0 {
                     addr[(idx * 2)],
                     addr[(idx * 2) + 1],
                     nums[(idx * 2)],
-                    nonce,
+                    _nonce,
                     data
                 );
 

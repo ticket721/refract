@@ -15,7 +15,7 @@
         "@commitlint/cli": "8.2.0",
         "@commitlint/config-conventional": "8.2.0",
         "@htmlacademy/editorconfig-cli": "1.0.0",
-        "@ticket721/e712": "0.3.0",
+        "@ticket721/e712": "0.4.1",
         "chai": "4.2.0",
         "chai-as-promised": "7.1.1",
         "conventional-changelog-cli": "2.0.31",

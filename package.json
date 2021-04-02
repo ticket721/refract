@@ -13,7 +13,7 @@
     },
     "devDependencies": {
         "@commitlint/cli": "8.2.0",
-        "@commitlint/config-conventional": "8.2.0",
+        "@commitlint/config-conventional": "12.1.1",
         "@htmlacademy/editorconfig-cli": "1.0.0",
         "@ticket721/e712": "0.3.0",
         "chai": "4.2.0",
